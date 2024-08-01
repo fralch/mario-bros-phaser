@@ -36,11 +36,17 @@ function preload() {
 function create() {
   this.add.image(100, 50, 'cloud1').setScale(0.15).setOrigin(0, 0);
 
-  this.add
-    .tileSprite(0, config.height - 28, config.width, 32, 'floorbricks')
-    .setOrigin(0, 0);
+  this.floor = this.physics.add.staticGroup();
 
-  this.mario = this.add.sprite(50, 200, 'mario').setOrigin(0, 0);
+  this.floor.create(0, config.height - 32, 'floorbricks').setOrigin(0, 0.5);
+  this.floor.create(100, config.height - 32, 'floorbricks').setOrigin(0, 0.5);
+
+  this.mario = this.physics.add
+    .sprite(50, 100, 'mario')
+    .setOrigin(0, 0)
+    .setGravityY(300);
+
+  this.physics.add.collider(this.mario, this.floor);
 
   this.anims.create({
     key: 'mario-walk',
@@ -57,6 +63,11 @@ function create() {
     frames: [{ key: 'mario', frame: 0 }],
   });
 
+  this.anims.create({
+    key: 'mario-jump',
+    frames: [{ key: 'mario', frame: 5 }],
+  });
+
   this.keys = this.input.keyboard.createCursorKeys();
 }
 
@@ -71,5 +82,10 @@ function update() {
     this.mario.flipX = false;
   } else {
     this.mario.anims.play('mario-idle', true);
+  }
+
+  if (this.keys.up.isDown) {
+    this.mario.y -= 2;
+    this.mario.anims.play('mario-jump', true);
   }
 }
