@@ -37,12 +37,39 @@ function create() {
   this.add.image(100, 50, 'cloud1').setScale(0.15).setOrigin(0, 0);
 
   this.add
-    .tileSprite(0, config.height - 32, config.width, 32, 'floorbricks')
+    .tileSprite(0, config.height - 28, config.width, 32, 'floorbricks')
     .setOrigin(0, 0);
 
-  this.add.sprite(50, 200, 'mario').setOrigin(0, 0);
+  this.mario = this.add.sprite(50, 200, 'mario').setOrigin(0, 0);
+
+  this.anims.create({
+    key: 'mario-walk',
+    frames: this.anims.generateFrameNumbers('mario', {
+      start: 3,
+      end: 1,
+    }),
+    frameRate: 10,
+    repeat: -1,
+  });
+
+  this.anims.create({
+    key: 'mario-idle',
+    frames: [{ key: 'mario', frame: 0 }],
+  });
+
+  this.keys = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
-  console.log('update');
+  if (this.keys.left.isDown) {
+    this.mario.x -= 2;
+    this.mario.anims.play('mario-walk', true);
+    this.mario.flipX = true;
+  } else if (this.keys.right.isDown) {
+    this.mario.x += 2;
+    this.mario.anims.play('mario-walk', true);
+    this.mario.flipX = false;
+  } else {
+    this.mario.anims.play('mario-idle', true);
+  }
 }
