@@ -1,6 +1,8 @@
 // game con phaser
 /* global phaser*/
 
+import { createAnimations } from './animations.js';
+
 const config = {
   type: Phaser.AUTO, // renderiza en webgl, canvas, webgpu
   width: 256,
@@ -38,35 +40,28 @@ function create() {
 
   this.floor = this.physics.add.staticGroup();
 
-  this.floor.create(0, config.height - 32, 'floorbricks').setOrigin(0, 0.5);
-  this.floor.create(100, config.height - 32, 'floorbricks').setOrigin(0, 0.5);
+  this.floor
+    .create(0, config.height - 16, 'floorbricks')
+    .setOrigin(0, 0.5)
+    .refreshBody();
+  this.floor
+    .create(150, config.height - 16, 'floorbricks')
+    .setOrigin(0, 0.5)
+    .refreshBody();
 
   this.mario = this.physics.add
     .sprite(50, 100, 'mario')
     .setOrigin(0, 0)
-    .setGravityY(300);
+    .setGravityY(300)
+    .setCollideWorldBounds(true);
 
+  this.physics.world.setBounds(0, 0, 2000, config.height);
   this.physics.add.collider(this.mario, this.floor);
 
-  this.anims.create({
-    key: 'mario-walk',
-    frames: this.anims.generateFrameNumbers('mario', {
-      start: 3,
-      end: 1,
-    }),
-    frameRate: 10,
-    repeat: -1,
-  });
+  this.cameras.main.setBounds(0, 0, 2000, config.height);
+  this.cameras.main.startFollow(this.mario, true, 0.05, 0.05);
 
-  this.anims.create({
-    key: 'mario-idle',
-    frames: [{ key: 'mario', frame: 0 }],
-  });
-
-  this.anims.create({
-    key: 'mario-jump',
-    frames: [{ key: 'mario', frame: 5 }],
-  });
+  createAnimations(this);
 
   this.keys = this.input.keyboard.createCursorKeys();
 }
@@ -85,7 +80,12 @@ function update() {
   }
 
   if (this.keys.up.isDown) {
-    this.mario.y -= 2;
+    this.mario.y -= 5;
     this.mario.anims.play('mario-jump', true);
+  }
+
+  if (this.mario.y >= config.height - 20) {
+    this.mario.anims.play('mario-dead', true);
+    // this.mario.destroy();
   }
 }
